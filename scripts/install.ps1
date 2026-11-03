@@ -7,6 +7,7 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+$UserHome = [System.IO.Path]::GetFullPath($UserHome)
 $root = Split-Path $PSScriptRoot -Parent
 $entries = @()
 
@@ -15,6 +16,21 @@ function Get-ContentHash([string]$Path) {
     $sha256 = [System.Security.Cryptography.SHA256]::Create()
     try { return [System.BitConverter]::ToString($sha256.ComputeHash($stream)) }
     finally { $sha256.Dispose(); $stream.Dispose() }
+}
+
+function Test-SameContent([string]$Source, [string]$Target) {
+    if ((Get-ContentHash $Source) -eq (Get-ContentHash $Target)) { return $true }
+    if ([System.IO.Path]::GetExtension($Source) -notin @('.md', '.json', '.yaml', '.yml', '.py', '.txt')) {
+        return $false
+    }
+    $encoding = [System.Text.UTF8Encoding]::new($false, $true)
+    try {
+        $sourceText = $encoding.GetString([System.IO.File]::ReadAllBytes($Source))
+        $targetText = $encoding.GetString([System.IO.File]::ReadAllBytes($Target))
+    }
+    catch [System.Text.DecoderFallbackException] { return $false }
+    return [string]::Equals($sourceText.Replace("`r`n", "`n"),
+        $targetText.Replace("`r`n", "`n"), [System.StringComparison]::Ordinal)
 }
 
 foreach ($name in @('create-auditable-meeting-minutes', 'meeting-transcript-to-open-items')) {
@@ -41,9 +57,7 @@ $plan = foreach ($entry in $entries) {
     $state = 'NEW'
     if (Test-Path -LiteralPath $entry.Target) {
         if (-not (Test-Path -LiteralPath $entry.Target -PathType Leaf)) { throw "Not a file: $($entry.Target)" }
-        $sourceHash = Get-ContentHash $entry.Source
-        $targetHash = Get-ContentHash $entry.Target
-        if ($sourceHash -eq $targetHash) { $state = 'OK' } else { $state = 'CONFLICT' }
+        if (Test-SameContent $entry.Source $entry.Target) { $state = 'OK' } else { $state = 'CONFLICT' }
     }
     [pscustomobject]@{ State = $state; Source = $entry.Source; Target = $entry.Target }
 }
@@ -52,8 +66,27 @@ if (-not $Apply) {
     Write-Output 'PREVIEW: no files changed. Use -Apply to install; -Apply -Update to approve replacements.'
     exit 0
 }
-if (@($plan | Where-Object { $_.State -eq 'CONFLICT' }).Count -gt 0 -and -not $Update) {
-    throw 'CONFLICT: no files changed. Review differences before using -Apply -Update.'
+$conflicts = @($plan | Where-Object { $_.State -eq 'CONFLICT' })
+if ($conflicts.Count -gt 0 -and -not $Update) {
+    throw 'CONFLICT: no files changed. Do not delete existing files. See README conflict instructions before using -Apply -Update.'
+}
+if ($conflicts.Count -gt 0) {
+    $stamp = [DateTime]::UtcNow.ToString('yyyyMMddTHHmmssfffZ') + '-' + [guid]::NewGuid().ToString('N')
+    $backupRoot = Join-Path $UserHome ".agents/backups/shared-skills/$stamp"
+    $manifest = @()
+    foreach ($entry in $conflicts) {
+        $relative = $entry.Target.Substring($UserHome.Length).TrimStart('\', '/')
+        $backupTarget = Join-Path $backupRoot $relative
+        New-Item -ItemType Directory -Path (Split-Path $backupTarget -Parent) -Force | Out-Null
+        Copy-Item -LiteralPath $entry.Target -Destination $backupTarget
+        if ((Get-ContentHash $entry.Target) -ne (Get-ContentHash $backupTarget)) {
+            throw "Backup verification failed: $($entry.Target). No installation files changed."
+        }
+        $manifest += [pscustomobject]@{ Target = $entry.Target; Backup = $backupTarget }
+    }
+    $manifestPath = Join-Path $backupRoot 'manifest.json'
+    ConvertTo-Json -InputObject $manifest -Depth 3 | Set-Content -LiteralPath $manifestPath -Encoding UTF8
+    Write-Output "BACKUP: $backupRoot"
 }
 
 foreach ($entry in $plan) {

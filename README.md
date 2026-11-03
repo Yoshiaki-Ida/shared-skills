@@ -28,10 +28,56 @@ Set-Location .\shared-skills
 ```
 
 配備先は `~/.agents/skills/<name>/` と `~/.copilot/agents/` です。
-同名ファイルが異なる場合は、書き込み前に停止します。
-差分を確認して置き換えを承認した場合だけ `-Apply -Update` を指定します。
+適用してよいのは、対象が上記の2 Skill・1 Agentの自分用配備先で、表示が `NEW` または `OK` のみの場合です。
+`OK` は同じ内容を意味します。UTF-8テキストのCRLF/LFだけの違いも `OK` とし、既存ファイルを保持します。
+`CONFLICT` が1件でもあれば通常の適用は書き込み前に停止します。削除や無確認の更新はしないでください。
 既存の別Skillや配備先固有ファイルを削除せず、旧配布用マニフェストも変更しません。
-再度引数なしで実行し、すべて `OK` なら配備内容は一致しています。
+`INSTALL_PASS` が表示され、再度引数なしで実行してすべて `OK` なら完了です。
+
+### CONFLICTがある場合
+
+1. 通常の `-Apply` は中止します。この停止では配備ファイルは変更されません。
+2. 表示された競合ファイルすべてを、同名の配布元ファイルと比較します。下記は1ファイルの比較例です。ほかの競合も確認してください。
+3. 既存の個人変更を保持したい場合や差分の用途が不明な場合は、ここで停止して管理者・作成者へ相談します。
+4. 全競合ファイルを公開版に置き換えてよいと判断した場合だけ、`-Apply -Update` を実行します。
+
+```powershell
+$installed = Join-Path $env:USERPROFILE '.agents\skills\create-auditable-meeting-minutes\SKILL.md'
+code --diff $installed '.\skills\meeting-and-records\create-auditable-meeting-minutes\SKILL.md'
+```
+
+`code` コマンドが使えない場合はVS Codeで2ファイルを開き、エクスプローラーの「比較対象の選択」「選択項目と比較」を使います。
+大文字小文字、空白、文字コードの違いはCRLF/LFだけの違いとはみなしません。
+
+```powershell
+.\scripts\install.ps1 -Apply -Update
+.\scripts\install.ps1
+```
+
+更新時は、上書き対象の競合ファイルを `~/.agents/backups/shared-skills/<時刻と識別子>/` に保存・検証してから配備します。
+バックアップに失敗した場合は配備を書き換えず停止します。成功時に `BACKUP:` と保存先を表示します。
+`INSTALL_PASS` がない、赤いエラーが出る、再確認で `NEW` / `CONFLICT` が残る場合は先へ進まないでください。
+更新中に失敗した場合もバックアップは残ります。自動復元はしないため、状態を確認してから復元します。
+
+### 更新前に戻す場合
+
+`$backup` に `BACKUP:` で表示された時刻付きフォルダを設定し、対応表の全項目を確認します。
+確認後に復元コマンドを実行すると、そのバックアップに記録された既存ファイルだけを戻します。
+新規追加ファイルや個人の追加ファイルは削除しません。復元後は旧版に戻るため、公開版との比較が再び `CONFLICT` になることがあります。
+
+```powershell
+$backup = '<BACKUPで表示されたフォルダ>'
+$restore = Get-Content -LiteralPath (Join-Path $backup 'manifest.json') -Raw | ConvertFrom-Json
+$restore | Format-Table Target, Backup -AutoSize
+```
+
+```powershell
+$restore | ForEach-Object {
+	Copy-Item -LiteralPath $_.Backup -Destination $_.Target -Force
+}
+```
+
+バックアップには個人の設定・変更を含む場合があります。GitHubへ登録せず、そのまま保管してください。
 
 ## 使用
 
