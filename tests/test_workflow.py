@@ -57,6 +57,7 @@ def test_minutes_to_dry_run_apply_and_export(tmp_path, monkeypatch):
     assert importer.run(arguments + ['--output', str(tmp_path / 'preview.json')]) == 0
     assert calls == []
     preview = json.loads((tmp_path / 'preview.json').read_text(encoding='utf-8'))
+    assert 'まだRedmineには登録されていません' in (tmp_path / 'preview.html').read_text(encoding='utf-8')
     assert preview['mode'] == 'dry-run'
     assert len(preview['children']) == 2
     assert importer.run(arguments + ['--apply', '--confirm-create-parent',
@@ -64,6 +65,8 @@ def test_minutes_to_dry_run_apply_and_export(tmp_path, monkeypatch):
     applied = json.loads((tmp_path / 'apply.json').read_text(encoding='utf-8'))
     assert applied['failed_items'] == []
     assert len(issues) == 3
+    assert preview['parent']['payload']['description'] == issues[0]['description']
+    assert [c['payload_template']['description'] for c in preview['children']] == [i['description'] for i in issues[1:]]
     assert all(issue['parent_issue_id'] == 1 for issue in issues[1:])
     output = tmp_path / 'export/tickets.md'
     monkeypatch.setattr(sys, 'argv', ['export', '--project', 'demo', '--config',

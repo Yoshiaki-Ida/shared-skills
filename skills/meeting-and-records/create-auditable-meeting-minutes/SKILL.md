@@ -89,7 +89,7 @@ description: 正式な会議議事録を、議論経緯・発言要旨・決定�
 - `meeting-minutes.html`: 回覧・レビュー・印刷用HTML
 - `validation-report.json`: 正本の構造エラー、警告、件数、Redmine子チケット対象外件数
 
-RedmineへのAPI反映はこのSkillで行わない。生成後に人間が`validation-report.json`とHTMLを確認し、`redmine-ticket-correction`をdry-runで実行する。
+RedmineへのAPI反映はこのSkillで行わない。`redmine-meeting-orchestrator`は専用Agentであり、このSkill名ではない。専用AgentはこのSkillを使用して議事録を生成し、続けて`redmine-ticket-correction`で登録ドラフト（dry-run）を生成する。人間は議事録HTMLに加え、登録予定payloadから生成された登録プレビューHTML（結果JSONと同じ名前の`.html`）で最終本文・登録先・担当者・期限を確認する。まだRedmineには登録されていないことを明示し、その後の新しいメッセージで登録の明示承認を得るまで停止する。このSkillの直接実行だけではRedmine登録は完了しない。
 
 Redmine子チケットは対応事項と未決事項から生成する。決定事項は親議事録本文に残し、決定だけを子チケット化しない。正本にない担当者、期限、完了条件、優先度、ステータスを補完しない。
 
