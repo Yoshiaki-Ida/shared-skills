@@ -1,0 +1,4 @@
+interface:
+  display_name: "監査可能な会議議事録を作成"
+  short_description: "監査可能な議事録・HTML・Redmine取込JSONを一括生成"
+  default_prompt: "Use $create-auditable-meeting-minutes to create the canonical minutes and automatically generate the reviewable HTML, Redmine import JSON, and validation report."

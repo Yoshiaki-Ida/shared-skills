@@ -1,0 +1,199 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "meeting-minutes.schema.json",
+  "title": "Auditable Meeting Minutes",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "mode",
+    "meeting",
+    "document_control",
+    "meeting_summary",
+    "agenda_items",
+    "decisions",
+    "action_items",
+    "open_items",
+    "review_flags",
+    "revision_history"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "mode": { "enum": ["general", "formal"] },
+    "meeting": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "start_at", "end_at", "location", "purpose", "participants", "absentees", "source_documents"],
+      "properties": {
+        "title": { "type": "string" },
+        "start_at": { "type": ["string", "null"], "format": "date-time" },
+        "end_at": { "type": ["string", "null"], "format": "date-time" },
+        "location": { "type": ["string", "null"] },
+        "purpose": { "type": ["string", "null"] },
+        "participants": { "type": "array", "items": { "$ref": "#/$defs/person" } },
+        "absentees": { "type": "array", "items": { "$ref": "#/$defs/person" } },
+        "source_documents": { "type": "array", "items": { "$ref": "#/$defs/sourceDocument" } }
+      }
+    },
+    "document_control": { "$ref": "#/$defs/documentControl" },
+    "meeting_summary": { "type": "string" },
+    "agenda_items": { "type": "array", "items": { "$ref": "#/$defs/agendaItem" } },
+    "decisions": { "type": "array", "items": { "$ref": "#/$defs/decision" } },
+    "action_items": { "type": "array", "items": { "$ref": "#/$defs/actionItem" } },
+    "open_items": { "type": "array", "items": { "$ref": "#/$defs/openItem" } },
+    "review_flags": { "type": "array", "items": { "$ref": "#/$defs/reviewFlag" } },
+    "revision_history": { "type": "array", "items": { "$ref": "#/$defs/revision" } }
+  },
+  "$defs": {
+    "nullableString": { "type": ["string", "null"] },
+    "person": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "speaker_id", "role", "attendance_status"],
+      "properties": {
+        "name": { "$ref": "#/$defs/nullableString" },
+        "speaker_id": { "$ref": "#/$defs/nullableString" },
+        "role": { "$ref": "#/$defs/nullableString" },
+        "attendance_status": { "enum": ["present", "absent", "partial", "unknown"] }
+      }
+    },
+    "sourceDocument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title", "version", "locator"],
+      "properties": {
+        "title": { "type": "string" },
+        "version": { "$ref": "#/$defs/nullableString" },
+        "locator": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "documentControl": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["document_id", "version", "prepared_by", "reviewers", "approvers", "approval_status", "approved_at", "distribution", "confidentiality"],
+      "properties": {
+        "document_id": { "$ref": "#/$defs/nullableString" },
+        "version": { "$ref": "#/$defs/nullableString" },
+        "prepared_by": { "$ref": "#/$defs/nullableString" },
+        "reviewers": { "type": "array", "items": { "type": "string" } },
+        "approvers": { "type": "array", "items": { "type": "string" } },
+        "approval_status": { "enum": ["draft", "under_review", "approved", "rejected", "superseded", "unknown"] },
+        "approved_at": { "type": ["string", "null"], "format": "date-time" },
+        "distribution": { "type": "array", "items": { "type": "string" } },
+        "confidentiality": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_type", "timestamp", "speaker", "document", "locator", "summary", "support_level"],
+      "properties": {
+        "source_type": { "enum": ["transcript", "recording", "document", "workflow", "other"] },
+        "timestamp": { "$ref": "#/$defs/nullableString" },
+        "speaker": { "$ref": "#/$defs/nullableString" },
+        "document": { "$ref": "#/$defs/nullableString" },
+        "locator": { "$ref": "#/$defs/nullableString" },
+        "summary": { "type": "string" },
+        "support_level": { "enum": ["explicit", "corroborated", "ambiguous", "conflicting"] }
+      }
+    },
+    "contribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["speaker", "speaker_id", "summary", "position", "evidence"],
+      "properties": {
+        "speaker": { "$ref": "#/$defs/nullableString" },
+        "speaker_id": { "$ref": "#/$defs/nullableString" },
+        "summary": { "type": "string" },
+        "position": { "$ref": "#/$defs/nullableString" },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } }
+      }
+    },
+    "agendaItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "number", "title", "context", "discussion_summary", "contributions", "options_considered", "dissent_and_reservations", "conclusion", "outcome", "decision_history", "evidence"],
+      "properties": {
+        "id": { "type": "string" },
+        "number": { "type": ["integer", "null"] },
+        "title": { "type": "string" },
+        "context": { "$ref": "#/$defs/nullableString" },
+        "discussion_summary": { "type": "string" },
+        "contributions": { "type": "array", "items": { "$ref": "#/$defs/contribution" } },
+        "options_considered": { "type": "array", "items": { "type": "string" } },
+        "dissent_and_reservations": { "type": "array", "items": { "type": "string" } },
+        "conclusion": { "$ref": "#/$defs/nullableString" },
+        "outcome": { "enum": ["decided", "approved", "conditionally_approved", "rejected", "deferred", "unresolved", "information_only"] },
+        "decision_history": { "type": "array", "items": { "type": "string" } },
+        "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidence" } }
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "agenda_item_id", "statement", "rationale", "conditions", "decided_by", "evidence"],
+      "properties": {
+        "id": { "type": "string" },
+        "agenda_item_id": { "type": "string" },
+        "statement": { "type": "string" },
+        "rationale": { "$ref": "#/$defs/nullableString" },
+        "conditions": { "type": "array", "items": { "type": "string" } },
+        "decided_by": { "type": "array", "items": { "type": "string" } },
+        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } }
+      }
+    },
+    "actionItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "agenda_item_id", "action", "owner", "due_date", "completion_criteria", "status", "evidence"],
+      "properties": {
+        "id": { "type": "string" },
+        "agenda_item_id": { "type": "string" },
+        "action": { "type": "string" },
+        "owner": { "$ref": "#/$defs/nullableString" },
+        "due_date": { "type": ["string", "null"], "format": "date" },
+        "completion_criteria": { "$ref": "#/$defs/nullableString" },
+        "status": { "enum": ["open", "in_progress", "completed", "cancelled", "unknown"] },
+        "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } }
+      }
+    },
+    "openItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "agenda_item_id", "statement", "reason_open", "next_decision_method", "owner", "target_date"],
+      "properties": {
+        "id": { "type": "string" },
+        "agenda_item_id": { "type": "string" },
+        "statement": { "type": "string" },
+        "reason_open": { "$ref": "#/$defs/nullableString" },
+        "next_decision_method": { "$ref": "#/$defs/nullableString" },
+        "owner": { "$ref": "#/$defs/nullableString" },
+        "target_date": { "type": ["string", "null"], "format": "date" }
+      }
+    },
+    "reviewFlag": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "severity", "subject", "issue", "required_resolution"],
+      "properties": {
+        "id": { "type": "string" },
+        "severity": { "enum": ["info", "warning", "blocking"] },
+        "subject": { "type": "string" },
+        "issue": { "type": "string" },
+        "required_resolution": { "$ref": "#/$defs/nullableString" }
+      }
+    },
+    "revision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "changed_at", "changed_by", "reason", "changes"],
+      "properties": {
+        "version": { "type": "string" },
+        "changed_at": { "type": ["string", "null"], "format": "date-time" },
+        "changed_by": { "$ref": "#/$defs/nullableString" },
+        "reason": { "type": "string" },
+        "changes": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

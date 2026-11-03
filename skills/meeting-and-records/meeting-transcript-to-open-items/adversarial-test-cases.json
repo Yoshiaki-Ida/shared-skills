@@ -1,0 +1,771 @@
+{
+  "schema_version": "5.0",
+  "test_cases": [
+    {
+      "id": "TC-01",
+      "name": "宿題が後で取り消される",
+      "transcript": [
+        "じゃあ修正で",
+        "やっぱ現行仕様で問題ないですね",
+        "では対応不要で"
+      ],
+      "expect": {
+        "type": "no_action",
+        "superseded_conclusions_contains": "当初は修正方針"
+      }
+    },
+    {
+      "id": "TC-02",
+      "name": "担当だけ決まる",
+      "transcript": [
+        "誰か調査を",
+        "じゃあ私やります"
+      ],
+      "expect": {
+        "type": "investigation",
+        "assignee_speaker_id": "話者2",
+        "ticket_readiness": "conditionally_ready"
+      }
+    },
+    {
+      "id": "TC-03",
+      "name": "結論が反転する",
+      "transcript": [
+        "A案採用",
+        "やっぱB案で"
+      ],
+      "expect": {
+        "type": "decision",
+        "description_contains": "B案",
+        "superseded_conclusions_contains": "A案"
+      }
+    },
+    {
+      "id": "TC-04",
+      "name": "同一論点が後半で再登場する",
+      "transcript": [
+        "メモリ増加が気になる",
+        "別議題",
+        "さっきのメモリ増加ですが調査しましょう"
+      ],
+      "expect": {
+        "item_count_for_topic": 1,
+        "type": "investigation"
+      }
+    },
+    {
+      "id": "TC-05",
+      "name": "ASR誤認識",
+      "transcript": [
+        "ピーエルシーの通信設定",
+        "インでクスを確認"
+      ],
+      "expect": {
+        "normalized_terms": [
+          "PLC",
+          "インデックス"
+        ]
+      }
+    },
+    {
+      "id": "TC-06",
+      "name": "問題提起だけで終了",
+      "transcript": [
+        "この処理メモリリークするかもしれませんね",
+        "そうですね",
+        "次の議題へ"
+      ],
+      "expect": {
+        "type": "unresolved"
+      }
+    },
+    {
+      "id": "TC-07",
+      "name": "質問がその場で解消",
+      "transcript": [
+        "この値は固定ですか",
+        "はい、外部仕様で固定です"
+      ],
+      "expect": {
+        "ticket_readiness": "not_ready"
+      }
+    },
+    {
+      "id": "TC-08",
+      "name": "対応済み自己申告のみ",
+      "transcript": [
+        "対応済みです",
+        "成果物確認はまだです"
+      ],
+      "expect": {
+        "status": "waiting_confirmation"
+      }
+    },
+    {
+      "id": "TC-09",
+      "name": "複数案が未決",
+      "transcript": [
+        "A案",
+        "B案",
+        "性能ならC案",
+        "今日は決められない"
+      ],
+      "expect": {
+        "type": "unresolved",
+        "discussion_summary_required": true
+      }
+    },
+    {
+      "id": "TC-10",
+      "name": "人名不明",
+      "transcript": [
+        "話者2: 私が調べます"
+      ],
+      "expect": {
+        "assignee": null,
+        "assignee_speaker_id": "話者2"
+      }
+    },
+    {
+      "id": "TC-11",
+      "name": "期限だけ決まる",
+      "transcript": [
+        "金曜までにお願いします",
+        "担当は後で決めます"
+      ],
+      "expect": {
+        "ticket_readiness": "conditionally_ready",
+        "missing_information_contains": "担当者"
+      }
+    },
+    {
+      "id": "TC-12",
+      "name": "雑談から本題復帰",
+      "transcript": [
+        "昨日暑かったですね",
+        "ところで通信断の件ですが",
+        "調査が必要です"
+      ],
+      "expect": {
+        "type": "investigation",
+        "small_talk_not_ticketed": true
+      }
+    },
+    {
+      "id": "TC-18",
+      "name": "欠席者への情報連携要否を勝手に作らない",
+      "transcript": [
+        {
+          "timestamp": "00:43:00",
+          "speaker_id": "話者1",
+          "text": "山本さんは今日は欠席です。"
+        },
+        {
+          "timestamp": "00:43:10",
+          "speaker_id": "話者2",
+          "text": "了解です。"
+        }
+      ],
+      "expected": {
+        "expected_item_count": 0,
+        "must_include_meeting": {
+          "absent_people_mentioned_contains": "山本"
+        },
+        "must_not_include": {
+          "ticket_title_contains_any": [
+            "情報連携",
+            "共有要否",
+            "欠席者への連絡"
+          ]
+        }
+      },
+      "notes": "欠席者がいる事実から共有確認タスクを捏造しない。"
+    },
+    {
+      "id": "TC-19",
+      "name": "欠席者を参加者へ混入しない",
+      "transcript": [
+        {
+          "timestamp": "00:44:00",
+          "speaker_id": "話者1",
+          "speaker_name": "栗田",
+          "text": "始めます。"
+        },
+        {
+          "timestamp": "00:44:10",
+          "speaker_id": "話者2",
+          "speaker_name": "岡本",
+          "text": "お願いします。"
+        },
+        {
+          "timestamp": "00:44:20",
+          "speaker_id": "話者1",
+          "speaker_name": "栗田",
+          "text": "山本さんは欠席です。"
+        }
+      ],
+      "expected": {
+        "must_include_meeting": {
+          "participants_names": [
+            "栗田",
+            "岡本"
+          ],
+          "absent_people_mentioned_names": [
+            "山本"
+          ]
+        },
+        "must_not_include_meeting": {
+          "participants_names": [
+            "山本"
+          ]
+        }
+      },
+      "notes": "名前が登場しただけで参加者扱いしない。"
+    },
+    {
+      "id": "TC-20",
+      "name": "意向表明をアクション化しない",
+      "transcript": [
+        {
+          "timestamp": "00:46:00",
+          "speaker_id": "話者1",
+          "text": "この件は別でちょっと話していきたいと思っています。"
+        }
+      ],
+      "expected": {
+        "expected_item_count": 0,
+        "must_not_include": {
+          "active_type": [
+            "action_item",
+            "confirmation",
+            "hold"
+          ],
+          "action_plan_contains_any": [
+            "検討会",
+            "会議を開催",
+            "別途打合せ"
+          ]
+        }
+      },
+      "notes": "意向と実施合意を分ける。"
+    },
+    {
+      "id": "TC-21",
+      "name": "運営連絡を残件化しない",
+      "transcript": [
+        {
+          "timestamp": "00:47:00",
+          "speaker_id": "話者1",
+          "text": "不在があれば連絡ください。"
+        }
+      ],
+      "expected": {
+        "expected_item_count": 0,
+        "must_not_include": {
+          "active_type": [
+            "action_item",
+            "confirmation",
+            "investigation"
+          ],
+          "missing_information_contains_any": [
+            "連絡チャネル",
+            "連絡期限",
+            "連絡方法"
+          ]
+        }
+      },
+      "notes": "一般案内を確認事項へ昇格しない。"
+    },
+    {
+      "id": "TC-22",
+      "name": "missing_informationを親切心で増やさない",
+      "transcript": [
+        {
+          "timestamp": "00:49:00",
+          "speaker_id": "話者1",
+          "text": "岡本さん、NCトレーナーの準備をお願いします。"
+        },
+        {
+          "timestamp": "00:49:10",
+          "speaker_id": "話者2",
+          "speaker_name": "岡本",
+          "text": "了解です。"
+        }
+      ],
+      "expected": {
+        "expected_item_count": 1,
+        "must_include": {
+          "type": "action_item",
+          "assignee": "岡本"
+        },
+        "must_not_include": {
+          "missing_information_contains_any": [
+            "連絡チャネル",
+            "共有方法",
+            "CC先"
+          ]
+        }
+      },
+      "notes": "残件成立に不要な不足情報を作らない。"
+    },
+    {
+      "id": "TC-23",
+      "name": "推奨行動と追跡合意を分ける",
+      "transcript": [
+        {
+          "timestamp": "00:51:00",
+          "speaker_id": "話者1",
+          "text": "欠席者には共有した方がいいかもしれませんね。"
+        },
+        {
+          "timestamp": "00:51:10",
+          "speaker_id": "話者2",
+          "text": "そうですね。"
+        },
+        {
+          "timestamp": "00:51:20",
+          "speaker_id": "話者1",
+          "text": "では次へ進みます。"
+        }
+      ],
+      "expected": {
+        "expected_item_count": 0,
+        "must_not_include": {
+          "active_type": [
+            "action_item",
+            "confirmation",
+            "unresolved"
+          ]
+        }
+      },
+      "notes": "一般的推奨を残件へ昇格しない。"
+    },
+    {
+      "id": "TC-24",
+      "name": "明示された決定だけを残す",
+      "transcript": [
+        {
+          "timestamp": "00:53:00",
+          "speaker_id": "話者1",
+          "text": "本日はトレーナーを次の対象にします。"
+        },
+        {
+          "timestamp": "00:53:10",
+          "speaker_id": "話者2",
+          "text": "了解です。"
+        }
+      ],
+      "expected": {
+        "expected_item_count": 1,
+        "must_include": {
+          "type": "decision",
+          "source_grounding": {
+            "is_explicitly_stated": true,
+            "support_level": "explicit"
+          }
+        },
+        "must_not_include": {
+          "extra_unstated_items": true
+        }
+      },
+      "notes": "周辺アクションを勝手に生やさない。"
+    },
+    {
+      "id": "TC-25",
+      "name": "会議要旨を生成する",
+      "transcript": [
+        {
+          "timestamp": "00:01:00",
+          "speaker_id": "話者1",
+          "text": "アラーム30秒の仕様を設計書に追記してください。"
+        },
+        {
+          "timestamp": "00:01:10",
+          "speaker_id": "話者2",
+          "text": "了解です。"
+        },
+        {
+          "timestamp": "00:02:00",
+          "speaker_id": "話者1",
+          "text": "ページング要否は確認して次回判断しましょう。"
+        }
+      ],
+      "expected": {
+        "meeting_summary_required": true,
+        "must_include_meeting_summary": {
+          "overview_contains_all": [
+            "アラーム30秒",
+            "ページング"
+          ],
+          "main_topics_contains_all": [
+            "アラーム30秒仕様",
+            "ページング要否"
+          ],
+          "key_outcomes_contains": "設計書へ追記",
+          "open_points_contains": "ページング要否"
+        }
+      },
+      "notes": "会議全体の要旨と残件の関係が分かること。"
+    },
+    {
+      "id": "TC-26",
+      "name": "会議要旨から新しいアクションを生やさない",
+      "transcript": [
+        {
+          "timestamp": "00:03:00",
+          "speaker_id": "話者1",
+          "text": "山本さんは今日は欠席です。"
+        },
+        {
+          "timestamp": "00:03:10",
+          "speaker_id": "話者2",
+          "text": "了解です。"
+        }
+      ],
+      "expected": {
+        "expected_item_count": 0,
+        "must_include_meeting_summary": {
+          "overview_contains": "山本が欠席"
+        },
+        "must_not_include_meeting_summary": {
+          "key_outcomes_contains_any": [
+            "山本へ共有",
+            "欠席者へ連絡",
+            "情報連携を確認"
+          ],
+          "next_step_summary_contains_any": [
+            "山本へ連絡",
+            "共有方法を確認"
+          ]
+        }
+      },
+      "notes": "要旨は事実を要約するだけで、追跡事項を創作しない。"
+    },
+    {
+      "id": "TC-27",
+      "name": "次アクションが明示されていない場合はnull",
+      "transcript": [
+        {
+          "timestamp": "00:04:00",
+          "speaker_id": "話者1",
+          "text": "この件は別でちょっと話していきたいと思っています。"
+        }
+      ],
+      "expected": {
+        "expected_item_count": 0,
+        "must_include_meeting_summary": {
+          "next_step_summary": null
+        },
+        "must_not_include_meeting_summary": {
+          "next_step_summary_contains_any": [
+            "別途検討会を開催",
+            "次回会議で議論"
+          ]
+        }
+      },
+      "notes": "意向表明を全体要旨でも正式アクションへ格上げしない。"
+    },
+    {
+      "id": "TC-28",
+      "name": "会議要旨とitemsの整合",
+      "transcript": [
+        {
+          "timestamp": "00:05:00",
+          "speaker_id": "話者1",
+          "text": "B案で決定します。"
+        },
+        {
+          "timestamp": "00:05:10",
+          "speaker_id": "話者1",
+          "text": "仕様書修正は佐藤さんがお願いします。"
+        },
+        {
+          "timestamp": "00:05:20",
+          "speaker_id": "話者2",
+          "speaker_name": "佐藤",
+          "text": "了解です。"
+        }
+      ],
+      "expected": {
+        "expected_item_count": 2,
+        "must_include_meeting_summary": {
+          "key_outcomes_contains_all": [
+            "B案を採用",
+            "佐藤が仕様書を修正"
+          ]
+        },
+        "must_not_include_meeting_summary": {
+          "open_points_contains_any": [
+            "B案の採否",
+            "仕様書修正担当"
+          ]
+        }
+      },
+      "notes": "決定済み事項をopen_pointsへ残さない。"
+    },
+    {
+      "id": "TC-29",
+      "name": "候補方針の反復後に確認へ切り替わる",
+      "transcript": [
+        "そう行きますか",
+        "そう行きますか",
+        "やっぱり確認しますか",
+        "では仕様を確認してから決めましょう"
+      ],
+      "expected": {
+        "must_include": {
+          "type": "confirmation",
+          "description_contains": "確認してから判断"
+        },
+        "must_not_include": {
+          "type": "decision"
+        }
+      },
+      "notes": "疑問形の候補を決定として早取りせず、末尾の確認合意を採用する。"
+    },
+    {
+      "id": "TC-30",
+      "name": "Redmine会議項目を全保持する",
+      "transcript": [
+        {
+          "timestamp": "10:00:00",
+          "speaker_id": "話者1",
+          "speaker_name": "I田",
+          "text": "会議を始めます。"
+        },
+        {
+          "timestamp": "10:29:00",
+          "speaker_id": "話者1",
+          "speaker_name": "I田",
+          "text": "今日はここまでです。"
+        }
+      ],
+      "expected": {
+        "redmine_meeting_fields_required": true,
+        "must_include_redmine_meeting_keys": [
+          "ステータス",
+          "優先度",
+          "担当者",
+          "対象バージョン",
+          "開始日",
+          "期日",
+          "進捗率",
+          "開発項目",
+          "機能区分",
+          "開催回数",
+          "議事録番号",
+          "工程",
+          "方式",
+          "対象ドキュメント番号・表題",
+          "実施日",
+          "実施時間(開始)",
+          "実施時間(終了)",
+          "DR/CR時間",
+          "DR/CR工数(書面審議時)",
+          "実施場所",
+          "出席者(選択)_",
+          "出席者(テキスト)_",
+          "レビューア数",
+          "DR対象頁数・ライン数(L)・項目数",
+          "全体頁数・ライン数(L)・項目数",
+          "手動指摘件数",
+          "手動",
+          "DRチェッカー",
+          "_2_品質特性",
+          "判定",
+          "判定理由",
+          "出席者"
+        ],
+        "must_include_redmine_meeting": {
+          "実施時間(開始)": "10:00:00",
+          "実施時間(終了)": "10:29:00"
+        },
+        "null_allowed_for_unavailable_fields": true
+      },
+      "notes": "値が取れないRedmine項目も省略せずnullまたは空配列で保持する。"
+    },
+    {
+      "id": "TC-31",
+      "name": "Markdownでは空欄Redmine項目を表示しない",
+      "input_json": {
+        "redmine_meeting_fields": {
+          "ステータス": "完了",
+          "優先度": "通常",
+          "担当者": null,
+          "対象バージョン": null,
+          "開始日": null,
+          "期日": null,
+          "進捗率": null,
+          "開発項目": null,
+          "機能区分": null,
+          "開催回数": null,
+          "議事録番号": null,
+          "工程": null,
+          "方式": null,
+          "対象ドキュメント番号・表題": null,
+          "実施日": "2026-07-13",
+          "実施時間(開始)": null,
+          "実施時間(終了)": null,
+          "DR/CR時間": null,
+          "DR/CR工数(書面審議時)": null,
+          "実施場所": null,
+          "出席者(選択)_": [],
+          "出席者(テキスト)_": null,
+          "レビューア数": null,
+          "DR対象頁数・ライン数(L)・項目数": null,
+          "全体頁数・ライン数(L)・項目数": null,
+          "手動指摘件数": null,
+          "手動": null,
+          "DRチェッカー": null,
+          "_2_品質特性": null,
+          "判定": null,
+          "判定理由": null,
+          "出席者": null
+        }
+      },
+      "expected": {
+        "markdown_contains_all": [
+          "ステータス: 完了",
+          "優先度: 通常",
+          "実施日: 2026-07-13"
+        ],
+        "markdown_not_contains_any": [
+          "担当者:",
+          "対象バージョン:",
+          "出席者(選択)_:"
+        ]
+      },
+      "notes": "JSONでは全項目を保持し、Markdownでは値あり項目だけ表示する。"
+    },
+    {
+      "id": "TC-32",
+      "name": "完了を独立フィールドとして作らない",
+      "transcript": [
+        "ステータスは完了です。",
+        "判定も完了です。"
+      ],
+      "expected": {
+        "must_include_redmine_meeting": {
+          "ステータス": "完了",
+          "判定": "完了"
+        },
+        "must_not_include_redmine_key": "完了"
+      },
+      "notes": "Redmine画面の値を独立した項目名として誤認しない。"
+    },
+    {
+      "id": "TC-33",
+      "name": "手動指摘件数とAI抽出件数を分離する",
+      "transcript": [
+        "手動指摘は3件でした。",
+        "会議では追加課題を2件抽出しました。"
+      ],
+      "expected": {
+        "must_include_redmine_meeting": {
+          "手動指摘件数": 3
+        },
+        "summary_item_count": 2,
+        "must_not_include_redmine_meeting": {
+          "手動指摘件数": 2
+        }
+      },
+      "notes": "手動指摘件数へAI抽出items件数を流用しない。"
+    },
+    {
+      "id": "TC-34",
+      "name": "子チケット内容欄と専用項目を分離する",
+      "input_item": {
+        "description": "修正案を見直し、参加者へ共有する。",
+        "rationale": "会議で修正が必要と合意された。",
+        "expected_state": "次回会議で再議論できる。",
+        "action_plan": "今週中に修正案を共有する。",
+        "completion_criteria": [
+          "修正案が共有されている。",
+          "次回会議の叩き台として利用できる。"
+        ],
+        "next_review_timing": "2026-07-30の定例会議"
+      },
+      "expected": {
+        "redmine_description_contains_all": [
+          "修正案を見直し、参加者へ共有する。",
+          "理由・背景",
+          "会議で修正が必要と合意された。",
+          "期待状態",
+          "次回会議で再議論できる。"
+        ],
+        "must_include_redmine_issue": {
+          "処置内容": "今週中に修正案を共有する。",
+          "確認内容": "修正案が共有されている。\n次回会議の叩き台として利用できる。",
+          "確認日": "2026-07-30"
+        }
+      },
+      "notes": "内容欄と処置・確認用カスタム項目を分離する。"
+    },
+    {
+      "id": "TC-35",
+      "name": "子チケット内容欄へ専用項目を重複表示しない",
+      "input_item": {
+        "id": "ITEM-001",
+        "type": "action_item",
+        "ticket_readiness": "ready",
+        "description": "修正案を見直す。",
+        "action_plan": "修正案を共有する。",
+        "completion_criteria": [
+          "共有済みであること。"
+        ],
+        "next_review_timing": "2026-07-30",
+        "source_grounding": {
+          "is_explicitly_stated": true,
+          "support_level": "explicit"
+        }
+      },
+      "expected": {
+        "redmine_description_not_contains_any": [
+          "内容:",
+          "修正案を共有する。",
+          "共有済みであること。",
+          "ITEM ID",
+          "action_item",
+          "ready",
+          "explicit"
+        ],
+        "must_include_redmine_issue": {
+          "処置内容": "修正案を共有する。",
+          "確認内容": "共有済みであること。",
+          "確認日": "2026-07-30"
+        }
+      },
+      "notes": "専用項目と内部管理情報を通常の内容欄へ重複展開しない。"
+    },
+    {
+      "id": "TC-36",
+      "name": "相対的な次回確認時期から確認日を捏造しない",
+      "input_item": {
+        "next_review_timing": "2週間後の会議"
+      },
+      "expected": {
+        "must_include_redmine_issue": {
+          "確認日": null
+        },
+        "must_preserve_item": {
+          "next_review_timing": "2週間後の会議"
+        }
+      },
+      "notes": "基準日が確定できない相対表現をRedmine日付へ変換しない。"
+    },
+    {
+      "id": "TC-37",
+      "name": "完了条件がない場合は確認内容をnullにする",
+      "input_item": {
+        "completion_criteria": []
+      },
+      "expected": {
+        "must_include_redmine_issue": {
+          "確認内容": null
+        }
+      },
+      "notes": "空配列から空文字や架空の確認条件を生成しない。"
+    }
+  ],
+  "purpose": "会議文字起こしから残件を抽出するSkillの回帰テスト。分類、最終状態、重複統合、ASR誤認識に加え、v6では捏造防止、参加者誤認、意向表明の過剰解釈、運営連絡の過剰残件化を評価する。 v8では、会議全体の要旨がitemsを忠実に俯瞰し、新しい対応事項を捏造しないことも評価する。 v8では、会議全体サマリーを正式機能として扱い、Schema・Skill・Markdown出力の整合を確認する。 v8ではRedmine項目の全保持、Markdownでの空欄省略、会議親チケットと残件子チケットの分離を評価する。 v9では、子チケット内容欄とRedmine専用項目の責務分離、処置内容・確認内容・確認日の転記、重複表示と日付捏造の防止を評価する。"
+}

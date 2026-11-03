@@ -1,0 +1,139 @@
+{
+  "schema_version": "1.0",
+  "mode": "general",
+  "meeting": {
+    "title": "API認証方式検討",
+    "start_at": "2026-07-31T10:00:00+09:00",
+    "end_at": "2026-07-31T10:30:00+09:00",
+    "location": null,
+    "purpose": "外部公開APIの認証方式を検討する",
+    "participants": [
+      {
+        "name": "田中",
+        "speaker_id": null,
+        "role": "司会",
+        "attendance_status": "present"
+      },
+      {
+        "name": "佐藤",
+        "speaker_id": null,
+        "role": null,
+        "attendance_status": "present"
+      }
+    ],
+    "absentees": [],
+    "source_documents": [
+      {
+        "title": "auth-options",
+        "version": "v2",
+        "locator": null
+      }
+    ]
+  },
+  "document_control": {
+    "document_id": null,
+    "version": null,
+    "prepared_by": null,
+    "reviewers": [],
+    "approvers": [],
+    "approval_status": "draft",
+    "approved_at": null,
+    "distribution": [],
+    "confidentiality": null
+  },
+  "meeting_summary": "認証方式を検討したが、運用コストの測定後に判断することとして方式決定を保留した。",
+  "agenda_items": [
+    {
+      "id": "AG-001",
+      "number": 1,
+      "title": "外部公開APIの認証方式",
+      "context": "現行のAPIキー方式からOAuth 2.0への移行を検討する必要がある。",
+      "discussion_summary": "既存顧客への影響と運用コストを比較した。運用コストが未測定のため当日の判断を見送った。",
+      "contributions": [],
+      "options_considered": [
+        "APIキーを継続する",
+        "OAuth 2.0へ移行する"
+      ],
+      "dissent_and_reservations": [
+        "即時移行は既存顧客への影響が大きい"
+      ],
+      "conclusion": "運用コストを比較した後に判断する。",
+      "outcome": "deferred",
+      "decision_history": [
+        "OAuth 2.0への移行を検討した。",
+        "測定不足により方式決定を保留した。"
+      ],
+      "evidence": [
+        {
+          "source_type": "transcript",
+          "timestamp": "10:25",
+          "speaker": "田中",
+          "document": null,
+          "locator": null,
+          "summary": "本日の方式決定を保留すると明示した。",
+          "support_level": "explicit"
+        }
+      ]
+    }
+  ],
+  "decisions": [
+    {
+      "id": "DEC-001",
+      "agenda_item_id": "AG-001",
+      "statement": "認証方式の決定を保留する。",
+      "rationale": "運用コストの測定が不足しているため。",
+      "conditions": [
+        "運用コストの比較結果が得られること"
+      ],
+      "decided_by": [
+        "田中"
+      ],
+      "evidence": [
+        {
+          "source_type": "transcript",
+          "timestamp": "10:25",
+          "speaker": "田中",
+          "document": null,
+          "locator": null,
+          "summary": "本日の方式決定を保留すると明示した。",
+          "support_level": "explicit"
+        }
+      ]
+    }
+  ],
+  "action_items": [
+    {
+      "id": "ACT-001",
+      "agenda_item_id": "AG-001",
+      "action": "API認証方式の運用コストを比較する。",
+      "owner": "佐藤",
+      "due_date": "2026-08-07",
+      "completion_criteria": "比較結果が提示されること。",
+      "status": "open",
+      "evidence": [
+        {
+          "source_type": "transcript",
+          "timestamp": "10:19",
+          "speaker": "佐藤",
+          "document": null,
+          "locator": null,
+          "summary": "運用コスト比較への対応を表明した。",
+          "support_level": "explicit"
+        }
+      ]
+    }
+  ],
+  "open_items": [
+    {
+      "id": "OPEN-001",
+      "agenda_item_id": "AG-001",
+      "statement": "外部公開APIに採用する認証方式",
+      "reason_open": "運用コストの比較結果がないため。",
+      "next_decision_method": "比較結果を踏まえて次回判断する。",
+      "owner": null,
+      "target_date": null
+    }
+  ],
+  "review_flags": [],
+  "revision_history": []
+}
