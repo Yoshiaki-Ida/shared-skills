@@ -1,0 +1,23 @@
+{
+  "source_repository": "https://github.com/github/awesome-copilot",
+  "source_commit": "edbecfa9099c4addae1f500cca1ac067204b30fd",
+  "source_subdirectory": "skills/refactor",
+  "license_file": "LICENSE.upstream.txt",
+  "retrieved_at": "2026-11-04T01:37:59.835696+00:00",
+  "files": [
+    {
+      "source": "skills/refactor/SKILL.md",
+      "target": "references/upstream.md",
+      "sha256": "58a38edd230cdcdd866939906321c8ba6f47c98a70d0cda373360196ee2ca1a7"
+    },
+    {
+      "source": "LICENSE",
+      "target": "LICENSE.upstream.txt",
+      "sha256": "e32449d23085399adc1222f7a17408b730550258e51627c153cb108ca9955823"
+    }
+  ],
+  "local_overrides": [
+    "SKILL.md",
+    "references/local-tailoring.md"
+  ]
+}

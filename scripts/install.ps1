@@ -20,7 +20,7 @@ function Get-ContentHash([string]$Path) {
 
 function Test-SameContent([string]$Source, [string]$Target) {
     if ((Get-ContentHash $Source) -eq (Get-ContentHash $Target)) { return $true }
-    if ([System.IO.Path]::GetExtension($Source) -notin @('.md', '.json', '.yaml', '.yml', '.py', '.txt')) {
+    if ([System.IO.Path]::GetExtension($Source) -notin @('.md', '.json', '.yaml', '.yml', '.py', '.txt', '.html')) {
         return $false
     }
     $encoding = [System.Text.UTF8Encoding]::new($false, $true)
@@ -33,8 +33,17 @@ function Test-SameContent([string]$Source, [string]$Target) {
         $targetText.Replace("`r`n", "`n"), [System.StringComparison]::Ordinal)
 }
 
-foreach ($name in @('create-auditable-meeting-minutes', 'meeting-transcript-to-open-items')) {
-    $source = Join-Path $root "skills/meeting-and-records/$name"
+$skillPaths = @(
+    'skills/meeting-and-records/create-auditable-meeting-minutes',
+    'skills/meeting-and-records/meeting-transcript-to-open-items',
+    'skills/skill-management/skill-creator',
+    'skills/software-development/safe-refactoring',
+    'skills/software-development/reverse-engineer-specification',
+    'skills/software-development/generate-tests-from-spec'
+)
+foreach ($relativePath in $skillPaths) {
+    $source = Join-Path $root $relativePath
+    $name = Split-Path $source -Leaf
     $definition = Join-Path $source 'SKILL.md'
     if (-not (Test-Path -LiteralPath $definition)) { throw "Missing Skill: $name" }
     if ((Get-Content -LiteralPath $definition -Raw -Encoding UTF8) -notmatch "(?m)^name: $name\s*$") {
@@ -98,4 +107,4 @@ foreach ($entry in $plan) {
         throw "Verification failed: $($entry.Target)"
     }
 }
-Write-Output 'INSTALL_PASS: two Skills and one Agent installed. No files were deleted.'
+Write-Output "INSTALL_PASS: $($skillPaths.Count) Skills and one Agent installed. No files were deleted."

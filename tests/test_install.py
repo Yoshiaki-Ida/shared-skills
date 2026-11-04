@@ -26,6 +26,24 @@ def test_preview_does_not_create_personal_directories(tmp_path):
     assert list(tmp_path.iterdir()) == []
 
 
+def test_all_six_skills_and_nested_references_are_installed(tmp_path):
+    result = run_install(tmp_path, '-Apply')
+    assert result.returncode == 0, result.stderr
+    assert b'6 Skills and one Agent' in result.stdout
+    definitions = list((ROOT / 'skills').glob('*/*/SKILL.md'))
+    assert len(definitions) == 6
+    for definition in definitions:
+        source = definition.parent
+        destination = tmp_path / '.agents/skills' / source.name
+        for path in source.rglob('*'):
+            if path.is_file() and '__pycache__' not in path.parts and path.suffix != '.pyc':
+                assert (destination / path.relative_to(source)).read_bytes() == path.read_bytes()
+    result = run_install(tmp_path)
+    assert result.returncode == 0, result.stderr
+    assert b'CONFLICT' not in result.stdout
+    assert b'NEW' not in result.stdout
+
+
 @pytest.mark.parametrize('newline', [b'\n', b'\r\n'])
 def test_line_endings_do_not_conflict_or_overwrite(tmp_path, newline):
     result = run_install(tmp_path, '-Apply')

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Skill Creator"
+  short_description: "Anthropic版を基にSkillを作成・比較評価・改善"
+  default_prompt: "$skill-creator を使い、Anthropicの基本手順とローカル差分に従ってSkillを作成・改善してください。比較評価は依頼範囲と実行環境を確認して進めてください。"

@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0
+
+- Add four tailored Skills for Skill creation, safe refactoring, specification recovery, and spec-based pytest generation.
+- Preserve pinned upstream files, source hashes, and licenses from Anthropic, GitHub awesome-copilot, and spec-forge.
+- Adapt local instructions to the public repository's README and installer.
+- Extend the preview-first installer to six Skills and one Agent, including HTML line-ending handling.
+- Add provenance, reference, validator, offline-tool, and complete-installation checks.
+
 ## 1.0.1
 
 - Treat CRLF/LF-only differences in UTF-8 text as OK without overwriting installed files.

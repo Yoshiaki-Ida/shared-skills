@@ -1,19 +1,24 @@
 # Shared Skills
 
-会議の文字起こしから議事録と残件を整理する、GitHub Copilot向けの公開用Skill集です。
+会議の議事録・残件整理と、Python PoCの開発・保守を支援する公開用Skill集です。
 
 | 内容 | 役割 |
 | --- | --- |
 | `create-auditable-meeting-minutes` | 正本JSON、議事録HTML、Redmine取込JSON、検証レポートを生成 |
 | `meeting-transcript-to-open-items` | 残件抽出のみを行う代替Skill |
 | `redmine-meeting-orchestrator` | 議事録生成、dry-run、承認後の登録・再取得をつなぐAgent |
+| `skill-creator` | Skillの作成・改善と、任意の比較評価 |
+| `safe-refactoring` | 外部挙動を保った構造・可読性の改善 |
+| `reverse-engineer-specification` | コード・README・UIから根拠付きの現行仕様を作成 |
+| `generate-tests-from-spec` | 仕様と既存実装からケースを設計し、pytestを作成・実行 |
 
 Redmine操作には別リポジトリ [Items](https://github.com/Yoshiaki-Ida/Items) の
 `redmine-ticket-correction` が必要です。Skill単独では登録しません。
 
 ## 導入
 
-Git、Windows / PowerShell 5.1以上、Python 3.11以上、VS Code版GitHub Copilotが必要です。
+配備にはGitとWindows / PowerShell 5.1以上を使います。SkillはGitHub CopilotまたはCodexで使用します。
+議事録の生成・テストにはPython 3.11以上、議事録用AgentにはVS Code版GitHub Copilotが必要です。
 
 ```powershell
 git clone https://github.com/Yoshiaki-Ida/shared-skills.git
@@ -28,7 +33,7 @@ Set-Location .\shared-skills
 ```
 
 配備先は `~/.agents/skills/<name>/` と `~/.copilot/agents/` です。
-適用してよいのは、対象が上記の2 Skill・1 Agentの自分用配備先で、表示が `NEW` または `OK` のみの場合です。
+適用してよいのは、対象が上記の6 Skill・1 Agentの自分用配備先で、表示が `NEW` または `OK` のみの場合です。
 `OK` は同じ内容を意味します。UTF-8テキストのCRLF/LFだけの違いも `OK` とし、既存ファイルを保持します。
 `CONFLICT` が1件でもあれば通常の適用は書き込み前に停止します。削除や無確認の更新はしないでください。
 既存の別Skillや配備先固有ファイルを削除せず、旧配布用マニフェストも変更しません。
@@ -79,7 +84,7 @@ $restore | ForEach-Object {
 
 バックアップには個人の設定・変更を含む場合があります。GitHubへ登録せず、そのまま保管してください。
 
-## 使用
+## 会議で使う
 
 Itemsをセットアップし、VS Codeで `Items` フォルダを開きます。
 Agent一覧に表示されない場合はVS Codeを再読み込みしてください。
@@ -98,14 +103,45 @@ Agentは議事録に加え、登録ドラフト（dry-run）の実HTMLへのリ�
 APIキーはチャットへ渡さず、Items側READMEのユーザー環境変数の手順に従います。
 会議情報をAIへ渡せるか、事前に組織の規則を確認してください。
 
+## 開発・保守で使う
+
+対象のリポジトリを開き、必要な資料と作業範囲を渡します。
+
+| Skill | 入力と依頼例 |
+| --- | --- |
+| `skill-creator` | 用途と期待出力を渡し、「この作業をSkill化して」 |
+| `safe-refactoring` | 対象コードと確認手段を渡し、「挙動を保って構造を整理して」 |
+| `reverse-engineer-specification` | 対象コードを渡し、「現行仕様を根拠付きで起こして」 |
+| `generate-tests-from-spec` | 仕様書と対象コードを渡し、「この仕様のpytestを整備して」 |
+
+Python作業は対象プロジェクトの既存環境を使います。外部サービスは模擬化し、試験用データを隔離します。
+不明点の確認、実行範囲、正式仕様の承認条件は各Skillのローカル差分に記載しています。
+
+### 原文と独自差分
+
+各Skillは公開版の原文、`references/local-tailoring.md`、出典記録を分けています。
+固定コミットとハッシュは各`references/upstream-provenance.json`に記録しています。
+
+| Skill | 土台とライセンス |
+| --- | --- |
+| `skill-creator` | [Anthropic原文](skills/skill-management/skill-creator/references/anthropic-skill-creator.md)、[ライセンス](skills/skill-management/skill-creator/LICENSE.txt) |
+| `safe-refactoring` | [GitHub refactor原文](skills/software-development/safe-refactoring/references/upstream.md)、[ライセンス](skills/software-development/safe-refactoring/LICENSE.upstream.txt) |
+| `reverse-engineer-specification` | [GitHub doc-and-modernize原文](skills/software-development/reverse-engineer-specification/references/upstream.md)、[ライセンス](skills/software-development/reverse-engineer-specification/LICENSE.upstream.txt) |
+| `generate-tests-from-spec` | [spec-forge原文](skills/software-development/generate-tests-from-spec/references/upstream.md)、[ライセンス](skills/software-development/generate-tests-from-spec/LICENSE.upstream.txt) |
+
+Skill作成の形式検証にはPyYAMLを使います。Anthropic由来の実AI比較ツールにはClaude CLIと認証が必要です。
+比較評価は任意です。Codex/Copilotでの評価結果と区別し、費用・実行条件を確認してから実行します。
+
 ## テスト
 
-Itemsと本リポジトリを同じ親フォルダへ配置し、ItemsのPython環境で実行します。
+Itemsと本リポジトリを同じ親フォルダへ配置し、pytestとPyYAMLを利用できるItemsのPython環境で実行します。
+配置が異なる場合は`ITEMS_APP_ROOT`へRedmineアプリのルートを指定します。
 
 ```powershell
 ..\Items\redmine-ticket-correction\.venv\Scripts\python.exe -m pytest -q .\tests
 ```
 
 議事録生成、dry-run、模擬APIへの登録と再エクスポート、隔離した配備先へのインストールを検証します。
+4件の追加Skillは、原文のハッシュ、参照先、形式検証、AIを呼ばない補助ツールの起動も確認します。
 同梱例は架空の会議です。実Redmineの登録と実会議でのAgent抽出精度は別途確認してください。
-社内向け資料、実会議、接続設定、APIキー、他の業務Skillは含めません。
+社内向け資料、実会議、接続設定、APIキーは含めません。

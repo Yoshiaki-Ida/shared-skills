@@ -1,0 +1,33 @@
+{
+  "source_repository": "https://github.com/github/awesome-copilot",
+  "source_commit": "edbecfa9099c4addae1f500cca1ac067204b30fd",
+  "source_subdirectory": "skills/doc-and-modernize",
+  "license_file": "LICENSE.upstream.txt",
+  "retrieved_at": "2026-11-04T01:38:00.153215+00:00",
+  "files": [
+    {
+      "source": "skills/doc-and-modernize/references/copilot-instructions.template.md",
+      "target": "references/copilot-instructions.template.md",
+      "sha256": "26660ec9124859675fc27b53744f1767d6d0add38921b16b174ad96820a977cc"
+    },
+    {
+      "source": "skills/doc-and-modernize/references/migration-hazards.md",
+      "target": "references/migration-hazards.md",
+      "sha256": "1c2e674bb178492371a5448d83d1f8bed93fab4464077c6aee5fba436442bc53"
+    },
+    {
+      "source": "skills/doc-and-modernize/SKILL.md",
+      "target": "references/upstream.md",
+      "sha256": "a1b5ff3752fa95d1597d33f95f265ca29171bd00c7315854b062f5117d0a89b6"
+    },
+    {
+      "source": "LICENSE",
+      "target": "LICENSE.upstream.txt",
+      "sha256": "e32449d23085399adc1222f7a17408b730550258e51627c153cb108ca9955823"
+    }
+  ],
+  "local_overrides": [
+    "SKILL.md",
+    "references/local-tailoring.md"
+  ]
+}

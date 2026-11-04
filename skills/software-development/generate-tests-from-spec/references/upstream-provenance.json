@@ -1,0 +1,53 @@
+{
+  "source_repository": "https://github.com/tercel/spec-forge",
+  "source_commit": "004e80a3cd5411d7717a1185eb345fafade5555d",
+  "source_subdirectory": "skills/test-cases-generation",
+  "license_file": "LICENSE.upstream.txt",
+  "retrieved_at": "2026-11-04T01:38:00.651954+00:00",
+  "files": [
+    {
+      "source": "skills/test-cases-generation/references/checklist.md",
+      "target": "references/checklist.md",
+      "sha256": "3fedac0e54e1cb8bcc9dfbb0eff4e211e870aa5323959d4ed50728f0f6331d64"
+    },
+    {
+      "source": "skills/test-cases-generation/references/generation-instructions.md",
+      "target": "references/generation-instructions.md",
+      "sha256": "4e04401a000ca16c913ba877b1e7f9622e6ee722ec1fda61737ab9fecf066be5"
+    },
+    {
+      "source": "skills/test-cases-generation/references/template.md",
+      "target": "references/template.md",
+      "sha256": "36ea6c20fdd20bc5d174dd15cb31ca6d63f9e7819ea992abde0ee9b4c193e9bc"
+    },
+    {
+      "source": "skills/test-cases-generation/SKILL.md",
+      "target": "references/upstream.md",
+      "sha256": "9d56531f3ba4d62578816e16416d7ceccaf70f87c50e6b9e113b46633125723b"
+    },
+    {
+      "source": "LICENSE",
+      "target": "LICENSE.upstream.txt",
+      "sha256": "c8e628d4838a38437a312bc635b0f119a04e4134d97f25957b3c5be98783665f"
+    },
+    {
+      "source": "skills/shared/doc-first.md",
+      "target": "references/upstream-shared/doc-first.md",
+      "sha256": "e5b08fc5fee72ff7535c638d73302044d9a80a19db79a531721fd9738453a0c9"
+    },
+    {
+      "source": "skills/shared/project-context.md",
+      "target": "references/upstream-shared/project-context.md",
+      "sha256": "47ba14a75631bc47ffa26ebf3d97d3f1881feb0e3fb925f8675588606dc5ea4a"
+    },
+    {
+      "source": "skills/shared/scripts.md",
+      "target": "references/upstream-shared/scripts.md",
+      "sha256": "30fd548e0e6c6b1081131abcb726e9f533312ec986c3d2a44dfea2a4db3debf1"
+    }
+  ],
+  "local_overrides": [
+    "SKILL.md",
+    "references/local-tailoring.md"
+  ]
+}
